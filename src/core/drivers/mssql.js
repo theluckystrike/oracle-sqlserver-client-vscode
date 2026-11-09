@@ -156,8 +156,22 @@ class MssqlSession {
   }
 
   async metaClient() {
-    if (!this.meta) this.meta = await this.connectClient('meta');
-    return this.meta;
+    if (this.meta) return this.meta;
+    // One connect at a time: two callers must not each open (and leak) a meta connection.
+    if (!this.metaConnecting) this.metaConnecting = this.connectClient('meta').then((c) => { this.meta = c; return c; }).finally(() => { this.metaConnecting = null; });
+    return this.metaConnecting;
+  }
+
+  /**
+   * tedious runs one request at a time per connection ("Requests can only be made in the LoggedIn state"), and the
+   * ER diagram, schema compare and the explorer ask for several schema queries at once. Every use of the meta
+   * connection goes through this queue, so queries, edit transactions and plan requests never interleave.
+   */
+  withMeta(fn) {
+    const run = () => fn();
+    const p = (this.metaQueue || Promise.resolve()).then(run, run);
+    this.metaQueue = p.catch(() => {});
+    return p;
   }
 
   /** Run one statement and collect its rows as objects (schema queries; small results only). */
@@ -179,13 +193,15 @@ class MssqlSession {
     });
   }
 
-  async metaQuery(sql, params) {
-    try {
-      return await this.simple(await this.metaClient(), sql, params);
-    } catch (e) {
-      if (isConnectionLost(e)) { this.meta = null; return this.simple(await this.metaClient(), sql, params); }
-      throw e;
-    }
+  metaQuery(sql, params) {
+    return this.withMeta(async () => {
+      try {
+        return await this.simple(await this.metaClient(), sql, params);
+      } catch (e) {
+        if (isConnectionLost(e)) { this.meta = null; return this.simple(await this.metaClient(), sql, params); }
+        throw e;
+      }
+    });
   }
 
   /**
@@ -431,7 +447,11 @@ class MssqlSession {
   }
 
   /** Run the statements in one transaction on the meta connection. Each must change exactly `expect` rows. */
-  async transaction(statements) {
+  transaction(statements) {
+    return this.withMeta(() => this.transactionNow(statements));
+  }
+
+  async transactionNow(statements) {
     const c = await this.metaClient();
     const run = (sql) => new Promise((resolve, reject) => {
       let count = 0;
@@ -607,7 +627,11 @@ class MssqlSession {
   }
 
   /** Estimated plan as showplan XML (Pro). Runs SET SHOWPLAN_XML on the meta connection; the query does not run. */
-  async explain(sql, db) {
+  explain(sql, db) {
+    return this.withMeta(() => this.explainNow(sql, db));
+  }
+
+  async explainNow(sql, db) {
     const c = await this.metaClient();
     if (db) await this.simple(c, `USE [${String(db).replace(/]/g, ']]')}];`);
     await this.simple(c, 'SET SHOWPLAN_XML ON;');
