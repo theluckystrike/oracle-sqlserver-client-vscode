@@ -2,6 +2,7 @@
 
 ## 0.1.0
 
+- Oracle INTERVAL DAY TO SECOND and INTERVAL YEAR TO MONTH columns show as Oracle text (+3 04:05:06.7, +1-02). Before, any query that returned one failed with NJS-119.
 - First release: SQL Server, Azure SQL and Oracle Database connections with pure JavaScript drivers (tedious, node-oracledb Thin mode).
 - SQL login, Windows (NTLM) login and Azure AD access tokens; Oracle Easy Connect, tnsnames.ora aliases and wallets.
 - Explorer with databases, schemas, tables, views, procedures, functions and packages, and Script as CREATE.

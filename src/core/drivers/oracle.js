@@ -15,8 +15,9 @@ const T = oracledb;
 
 const NUMBER_TYPES = new Set([T.DB_TYPE_NUMBER, T.DB_TYPE_BINARY_FLOAT, T.DB_TYPE_BINARY_DOUBLE, T.DB_TYPE_BINARY_INTEGER].filter(Boolean));
 // Dates stay Date objects (Thin mode builds them in local time) and are written as YYYY-MM-DD HH:MI:SS below.
+// INTERVAL columns cannot be fetched as strings (NJS-119 failed the whole query); cellValue writes them as Oracle text.
 const AS_STRING = new Set([T.DB_TYPE_NUMBER,
-  T.DB_TYPE_CLOB, T.DB_TYPE_NCLOB, T.DB_TYPE_INTERVAL_DS, T.DB_TYPE_INTERVAL_YM, T.DB_TYPE_ROWID, T.DB_TYPE_UROWID, T.DB_TYPE_BINARY_FLOAT, T.DB_TYPE_BINARY_DOUBLE].filter(Boolean));
+  T.DB_TYPE_CLOB, T.DB_TYPE_NCLOB, T.DB_TYPE_ROWID, T.DB_TYPE_UROWID, T.DB_TYPE_BINARY_FLOAT, T.DB_TYPE_BINARY_DOUBLE].filter(Boolean));
 const AS_BUFFER = new Set([T.DB_TYPE_BLOB, T.DB_TYPE_BFILE].filter(Boolean));
 
 /** Exact text for numbers and dates (no float rounding), whole CLOB text, BLOB bytes. */
@@ -52,7 +53,23 @@ function cellValue(v) {
   if (Buffer.isBuffer(v) || typeof v === 'string' || typeof v === 'number') return v;
   if (ArrayBuffer.isView(v)) return `[${Array.from(v).join(', ')}]`; // VECTOR
   if (v && typeof v.getData === 'function') return '(BFILE)';
+  if (T.IntervalDS && v instanceof T.IntervalDS) return intervalText(v);
+  if (T.IntervalYM && v instanceof T.IntervalYM) return intervalText(v);
   try { return JSON.stringify(v); } catch { return String(v); }
+}
+
+/** Oracle text for INTERVAL DAY TO SECOND (+3 04:05:06.7) and INTERVAL YEAR TO MONTH (+1-02). */
+function intervalText(v) {
+  const p = (n) => String(Math.abs(n || 0)).padStart(2, '0');
+  if ('years' in v || 'months' in v) {
+    const neg = (v.years || 0) < 0 || (v.months || 0) < 0;
+    return `${neg ? '-' : '+'}${Math.abs(v.years || 0)}-${p(v.months)}`;
+  }
+  const parts = [v.days, v.hours, v.minutes, v.seconds, v.fseconds];
+  const neg = parts.some((x) => (x || 0) < 0);
+  const ns = Math.abs(v.fseconds || 0);
+  const frac = ns ? '.' + String(ns).padStart(9, '0').replace(/0+$/, '') : '';
+  return `${neg ? '-' : '+'}${Math.abs(v.days || 0)} ${p(v.hours)}:${p(v.minutes)}:${p(v.seconds)}${frac}`;
 }
 
 function rowBytes(row) {
@@ -556,4 +573,4 @@ function tnsAliases(text) {
   return out.filter((x) => /^[\w.$#-]+$/.test(x));
 }
 
-module.exports = { OracleSession, checkTnsnames, tnsAliases, describe, oraType };
+module.exports = { OracleSession, checkTnsnames, tnsAliases, describe, oraType, cellValue, intervalText };

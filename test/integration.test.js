@@ -180,3 +180,15 @@ test('Oracle: streamed export of 1M rows and explorer queries', opts, async () =
     assert.ok(plan.rows.some((r) => r.OPERATION === 'TABLE ACCESS'));
   } finally { await s.close(); }
 });
+
+test('Oracle: SELECT * on a table with INTERVAL columns returns rows (was NJS-119)', opts, async () => {
+  const s = ora();
+  try {
+    await s.runBatch("BEGIN EXECUTE IMMEDIATE 'DROP TABLE it_intervals'; EXCEPTION WHEN OTHERS THEN NULL; END;", 10, {});
+    await s.runBatch('CREATE TABLE it_intervals (ds INTERVAL DAY TO SECOND, ym INTERVAL YEAR TO MONTH)', 10, {});
+    await s.runBatch("INSERT INTO it_intervals VALUES (INTERVAL '3 04:05:06.7' DAY TO SECOND, INTERVAL '1-2' YEAR TO MONTH)", 10, {});
+    const r = await s.runBatch('SELECT * FROM it_intervals', 10, {});
+    assert.deepEqual(r.sets[0].rows, [['+3 04:05:06.7', '+1-02']]);
+    await s.runBatch('DROP TABLE it_intervals', 10, {});
+  } finally { await s.close(); }
+});

@@ -4,7 +4,8 @@ const assert = require('node:assert/strict');
 const { splitStatements, statementAt, riskyStatements, writeKeyword, isWrappable, skeleton } = require('../src/core/sqlsplit');
 const { quoteIdent, quoteLiteral, editStatements, wrapQuery, selectTop, selectAll, insertLine } = require('../src/core/dialect');
 const { parseConnectionString, validate, displayUrl } = require('../src/core/connstr');
-const { checkTnsnames, tnsAliases } = require('../src/core/drivers/oracle');
+const { checkTnsnames, tnsAliases, cellValue: oraCell } = require('../src/core/drivers/oracle');
+const oracledb = require('oracledb');
 const { friendlyError, isConnectionLost } = require('../src/core/drivers/errors');
 const { dateText, typeLabel } = require('../src/core/drivers/mssql');
 const { gridCell, csvLine } = require('../src/core/values');
@@ -228,4 +229,11 @@ test('Oracle: REM and REMARK lines are comments, not statements', () => {
   const st = splitStatements('rem\nREM Copyright (c) 2023 Oracle\nremark x\nSELECT 1 FROM dual;\nrem end\n', 'oracle');
   assert.equal(st.length, 1);
   assert.match(st[0].text, /^SELECT 1 FROM dual/);
+});
+
+test('Oracle: INTERVAL values show as Oracle text, not as an error or JSON', () => {
+  assert.equal(oraCell(new oracledb.IntervalDS({ days: 3, hours: 4, minutes: 5, seconds: 6, fseconds: 700000000 })), '+3 04:05:06.7');
+  assert.equal(oraCell(new oracledb.IntervalDS({ days: -1, hours: -2, minutes: 0, seconds: 0, fseconds: 0 })), '-1 02:00:00');
+  assert.equal(oraCell(new oracledb.IntervalYM({ years: 1, months: 2 })), '+1-02');
+  assert.equal(oraCell(new oracledb.IntervalYM({ years: 0, months: -5 })), '-0-05');
 });
