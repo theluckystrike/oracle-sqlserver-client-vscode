@@ -48,7 +48,13 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "Connections are stored per user, not per workspace. Nothing runs from the workspace."
+      "description": "Connections are stored per user, not per workspace. Nothing runs from the workspace. In Restricted Mode the workspace cannot switch off the write confirmation or Oracle auto-commit, or raise the row limits.",
+      "restrictedConfigurations": [
+        "zovoOra.confirmUnboundedWrites",
+        "zovoOra.oracleAutoCommit",
+        "zovoOra.maxLoadedRows",
+        "zovoOra.rowLimit"
+      ]
     },
     "virtualWorkspaces": true
   },

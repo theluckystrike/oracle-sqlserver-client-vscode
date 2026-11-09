@@ -2,6 +2,7 @@
 
 ## 0.1.0
 
+- In Restricted Mode, a workspace's settings can no longer switch off the confirmation before DELETE or UPDATE without WHERE, switch off Oracle auto-commit, or raise the row limits.
 - Oracle INTERVAL DAY TO SECOND and INTERVAL YEAR TO MONTH columns show as Oracle text (+3 04:05:06.7, +1-02). Before, any query that returned one failed with NJS-119.
 - First release: SQL Server, Azure SQL and Oracle Database connections with pure JavaScript drivers (tedious, node-oracledb Thin mode).
 - SQL login, Windows (NTLM) login and Azure AD access tokens; Oracle Easy Connect, tnsnames.ora aliases and wallets.

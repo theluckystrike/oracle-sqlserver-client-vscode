@@ -81,3 +81,12 @@ test('schema compare text is sorted and stable; summary counts', () => {
   assert.deepEqual(schemaDiffSummary(a, b), { onlyA: 1, onlyB: 1, changed: 1 });
 });
 
+
+test('package.json: an untrusted workspace cannot switch off the write guard or raise the row limits', () => {
+  const r = pkg.capabilities.untrustedWorkspaces;
+  assert.equal(r.supported, 'limited');
+  for (const k of ['zovoOra.confirmUnboundedWrites', 'zovoOra.oracleAutoCommit', 'zovoOra.maxLoadedRows', 'zovoOra.rowLimit']) {
+    assert.ok((r.restrictedConfigurations || []).includes(k), `${k} in restrictedConfigurations`);
+    assert.ok(pkg.contributes.configuration.properties ? pkg.contributes.configuration.properties[k] : [].concat(pkg.contributes.configuration).some((c) => c.properties[k]), `${k} is a contributed setting`);
+  }
+});
