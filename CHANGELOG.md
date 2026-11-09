@@ -2,6 +2,8 @@
 
 ## 0.1.0
 
+- SQL Server DECIMAL, NUMERIC and MONEY values keep every digit in the grid, in exports and in grid edits. Before, a DECIMAL(20,0) key such as 9007199254740993 showed as 9007199254740992, and an edit of that row could be saved into the row with the smaller key.
+- SQL Server: the ER diagram, schema compare and the explorer's Procedures folder no longer fail with "Requests can only be made in the LoggedIn state".
 - In Restricted Mode, a workspace's settings can no longer switch off the confirmation before DELETE or UPDATE without WHERE, switch off Oracle auto-commit, or raise the row limits.
 - Oracle INTERVAL DAY TO SECOND and INTERVAL YEAR TO MONTH columns show as Oracle text (+3 04:05:06.7, +1-02). Before, any query that returned one failed with NJS-119.
 - First release: SQL Server, Azure SQL and Oracle Database connections with pure JavaScript drivers (tedious, node-oracledb Thin mode).
