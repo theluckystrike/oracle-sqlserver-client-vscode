@@ -1,0 +1,658 @@
+{
+  "name": "zovo-oracle-sqlserver-client",
+  "displayName": "Oracle SQL & SQL Server Query Client (MSSQL, T-SQL, PLSQL, Oracle Database Tool)",
+  "description": "Free Oracle SQL and SQL Server client for VS Code, Cursor and Windsurf: run T-SQL and PLSQL, GO and / batches, PRINT and DBMS_OUTPUT, browse tables, cancel queries, streamed CSV export. Azure SQL, Windows (NTLM) login, tnsnames.ora, wallets. Pure JS drivers, fast start, an alternative to heavy desktop SQL tools. No sign-in, no telemetry.",
+  "version": "0.1.0",
+  "publisher": "zovo",
+  "license": "MIT",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1B2333",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.90.0",
+    "node": ">=18"
+  },
+  "categories": [
+    "Data Science",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "oracle sql",
+    "sql server",
+    "mssql",
+    "t-sql",
+    "plsql",
+    "oracle database",
+    "oracle client",
+    "sql server client",
+    "azure sql",
+    "tsql",
+    "oracle",
+    "sql",
+    "query",
+    "database client",
+    "database",
+    "tnsnames",
+    "dbms_output",
+    "sql editor",
+    "database explorer",
+    "csv export"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:sql"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Connections are stored per user, not per workspace. Nothing runs from the workspace."
+    },
+    "virtualWorkspaces": true
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "zovoOra",
+          "title": "Oracle & SQL Server",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "zovoOra": [
+        {
+          "id": "zovoOra.connections",
+          "name": "Database Explorer",
+          "icon": "media/activity.svg",
+          "contextualTitle": "Oracle & SQL Server"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "zovoOra.connections",
+        "contents": "No connections yet. Add SQL Server, Azure SQL or Oracle Database. Free, no sign-in.\n[Add Connection](command:zovoOra.addConnection)\nThe extension connects only to the servers you add here, and only when you expand a connection or run a query. [Get started](command:zovoOra.openWalkthrough)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "zovoOra.addConnection",
+        "title": "Add Connection",
+        "category": "Oracle & SQL Server",
+        "icon": "$(add)"
+      },
+      {
+        "command": "zovoOra.editConnection",
+        "title": "Edit Connection",
+        "category": "Oracle & SQL Server",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "zovoOra.deleteConnection",
+        "title": "Delete Connection",
+        "category": "Oracle & SQL Server",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "zovoOra.disconnect",
+        "title": "Disconnect",
+        "category": "Oracle & SQL Server",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "zovoOra.refresh",
+        "title": "Refresh",
+        "category": "Oracle & SQL Server",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "zovoOra.newQuery",
+        "title": "New Query",
+        "category": "Oracle & SQL Server",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "zovoOra.runStatement",
+        "title": "Run Statement or Batch at Cursor (or Selection)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(play)"
+      },
+      {
+        "command": "zovoOra.runAll",
+        "title": "Run All (every GO batch or statement in the file)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "zovoOra.cancel",
+        "title": "Cancel Running Query",
+        "category": "Oracle & SQL Server",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "zovoOra.selectConnection",
+        "title": "Choose Connection for This File",
+        "category": "Oracle & SQL Server",
+        "icon": "$(database)"
+      },
+      {
+        "command": "zovoOra.openTable",
+        "title": "Open Table",
+        "category": "Oracle & SQL Server",
+        "icon": "$(table)"
+      },
+      {
+        "command": "zovoOra.exportTable",
+        "title": "Export Table (CSV, JSON, SQL)…",
+        "category": "Oracle & SQL Server",
+        "icon": "$(export)"
+      },
+      {
+        "command": "zovoOra.copyName",
+        "title": "Copy Name",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.selectTop",
+        "title": "New Query: SELECT TOP 100 / FETCH FIRST 100",
+        "category": "Oracle & SQL Server",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "zovoOra.queryHistory",
+        "title": "Query History",
+        "category": "Oracle & SQL Server",
+        "icon": "$(history)"
+      },
+      {
+        "command": "zovoOra.clearHistory",
+        "title": "Clear Query History",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.toggleReadOnly",
+        "title": "Toggle Read-Only for This Connection",
+        "category": "Oracle & SQL Server",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "zovoOra.showError",
+        "title": "Show Error",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.openWalkthrough",
+        "title": "Get Started",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.supportDeveloper",
+        "title": "Support the developer",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.moreViewers",
+        "title": "More free tools by Zovo",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.erDiagram",
+        "title": "ER Diagram (Pro)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "zovoOra.compareSchemas",
+        "title": "Compare Two Schemas (Pro)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "zovoOra.saveQuery",
+        "title": "Save Query to Library (Pro)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(bookmark)"
+      },
+      {
+        "command": "zovoOra.openSavedQuery",
+        "title": "Open Saved Query (Pro)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(library)"
+      },
+      {
+        "command": "zovoOra.enterLicenseKey",
+        "title": "Zovo: Enter license key",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.getPro",
+        "title": "Zovo: Get Pro (USD 19 once, all Zovo extensions)",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.unlockWithSponsors",
+        "title": "Zovo: Unlock Pro with GitHub Sponsors",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.removeLicense",
+        "title": "Zovo: Remove license from this editor",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.scriptCreate",
+        "title": "Script as CREATE",
+        "category": "Oracle & SQL Server",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "zovoOra.toggleServerOutput",
+        "title": "Toggle DBMS_OUTPUT (Oracle)",
+        "category": "Oracle & SQL Server"
+      },
+      {
+        "command": "zovoOra.explainPlan",
+        "title": "Show Execution Plan (Pro)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "zovoOra.exportSchemaDdl",
+        "title": "Export Schema DDL (Pro)",
+        "category": "Oracle & SQL Server",
+        "icon": "$(file-code)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "zovoOra.runStatement",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId == sql"
+      },
+      {
+        "command": "zovoOra.runAll",
+        "key": "ctrl+alt+enter",
+        "mac": "cmd+alt+enter",
+        "when": "editorTextFocus && editorLangId == sql"
+      },
+      {
+        "command": "zovoOra.cancel",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c",
+        "when": "zovoOra.running"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "zovoOra.addConnection",
+          "when": "view == zovoOra.connections",
+          "group": "navigation@1"
+        },
+        {
+          "command": "zovoOra.newQuery",
+          "when": "view == zovoOra.connections",
+          "group": "navigation@2"
+        },
+        {
+          "command": "zovoOra.refresh",
+          "when": "view == zovoOra.connections",
+          "group": "navigation@3"
+        },
+        {
+          "command": "zovoOra.queryHistory",
+          "when": "view == zovoOra.connections",
+          "group": "2_more@1"
+        },
+        {
+          "command": "zovoOra.openSavedQuery",
+          "when": "view == zovoOra.connections && config.zovoOra.showProFeatures",
+          "group": "2_more@2"
+        },
+        {
+          "command": "zovoOra.compareSchemas",
+          "when": "view == zovoOra.connections && config.zovoOra.showProFeatures",
+          "group": "2_more@3"
+        },
+        {
+          "command": "zovoOra.moreViewers",
+          "when": "view == zovoOra.connections",
+          "group": "3_zovo@1"
+        },
+        {
+          "command": "zovoOra.supportDeveloper",
+          "when": "view == zovoOra.connections",
+          "group": "3_zovo@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "zovoOra.newQuery",
+          "when": "view == zovoOra.connections && viewItem =~ /^(connection|database|schema)/",
+          "group": "inline@1"
+        },
+        {
+          "command": "zovoOra.newQuery",
+          "when": "view == zovoOra.connections && viewItem =~ /^(connection|database|schema)/",
+          "group": "1_query@1"
+        },
+        {
+          "command": "zovoOra.refresh",
+          "when": "view == zovoOra.connections && viewItem =~ /^(connection|database|schema|folder|table|view)/",
+          "group": "1_query@2"
+        },
+        {
+          "command": "zovoOra.erDiagram",
+          "when": "view == zovoOra.connections && viewItem =~ /^schema/ && config.zovoOra.showProFeatures",
+          "group": "2_tools@1"
+        },
+        {
+          "command": "zovoOra.compareSchemas",
+          "when": "view == zovoOra.connections && viewItem =~ /^schema/ && config.zovoOra.showProFeatures",
+          "group": "2_tools@2"
+        },
+        {
+          "command": "zovoOra.editConnection",
+          "when": "view == zovoOra.connections && viewItem =~ /^connection/",
+          "group": "3_conn@1"
+        },
+        {
+          "command": "zovoOra.toggleReadOnly",
+          "when": "view == zovoOra.connections && viewItem =~ /^connection/",
+          "group": "3_conn@2"
+        },
+        {
+          "command": "zovoOra.disconnect",
+          "when": "view == zovoOra.connections && viewItem =~ /^connection/",
+          "group": "3_conn@3"
+        },
+        {
+          "command": "zovoOra.deleteConnection",
+          "when": "view == zovoOra.connections && viewItem =~ /^connection/",
+          "group": "3_conn@4"
+        },
+        {
+          "command": "zovoOra.openTable",
+          "when": "view == zovoOra.connections && viewItem =~ /^(table|view)/",
+          "group": "inline@1"
+        },
+        {
+          "command": "zovoOra.openTable",
+          "when": "view == zovoOra.connections && viewItem =~ /^(table|view)/",
+          "group": "1_query@1"
+        },
+        {
+          "command": "zovoOra.selectTop",
+          "when": "view == zovoOra.connections && viewItem =~ /^(table|view)/",
+          "group": "1_query@2"
+        },
+        {
+          "command": "zovoOra.exportTable",
+          "when": "view == zovoOra.connections && viewItem =~ /^(table|view)/",
+          "group": "1_query@3"
+        },
+        {
+          "command": "zovoOra.copyName",
+          "when": "view == zovoOra.connections && viewItem =~ /^(table|view|column|index|database|schema)/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "zovoOra.scriptCreate",
+          "when": "view == zovoOra.connections && viewItem =~ /^(table|view|procedure|function|package)/",
+          "group": "1_query@4"
+        },
+        {
+          "command": "zovoOra.exportSchemaDdl",
+          "when": "view == zovoOra.connections && viewItem =~ /^schema/ && config.zovoOra.showProFeatures",
+          "group": "2_tools@3"
+        },
+        {
+          "command": "zovoOra.copyName",
+          "when": "view == zovoOra.connections && viewItem =~ /^(procedure|function|package)/",
+          "group": "9_copy@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "zovoOra.runStatement",
+          "when": "editorLangId == sql",
+          "group": "navigation@1"
+        },
+        {
+          "command": "zovoOra.selectConnection",
+          "when": "editorLangId == sql",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "zovoOra.runStatement",
+          "when": "editorLangId == sql",
+          "group": "zovoOra@1"
+        },
+        {
+          "command": "zovoOra.runAll",
+          "when": "editorLangId == sql",
+          "group": "zovoOra@2"
+        },
+        {
+          "command": "zovoOra.selectConnection",
+          "when": "editorLangId == sql",
+          "group": "zovoOra@3"
+        },
+        {
+          "command": "zovoOra.saveQuery",
+          "when": "editorLangId == sql && config.zovoOra.showProFeatures",
+          "group": "zovoOra@4"
+        },
+        {
+          "command": "zovoOra.explainPlan",
+          "when": "editorLangId == sql && config.zovoOra.showProFeatures",
+          "group": "zovoOra@5"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "zovoOra.showError",
+          "when": "false"
+        },
+        {
+          "command": "zovoOra.openTable",
+          "when": "false"
+        },
+        {
+          "command": "zovoOra.copyName",
+          "when": "false"
+        },
+        {
+          "command": "zovoOra.selectTop",
+          "when": "false"
+        },
+        {
+          "command": "zovoOra.exportTable",
+          "when": "false"
+        },
+        {
+          "command": "zovoOra.cancel",
+          "when": "zovoOra.running"
+        },
+        {
+          "command": "zovoOra.erDiagram",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.compareSchemas",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.saveQuery",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.openSavedQuery",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.getPro",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.enterLicenseKey",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.unlockWithSponsors",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.scriptCreate",
+          "when": "false"
+        },
+        {
+          "command": "zovoOra.explainPlan",
+          "when": "config.zovoOra.showProFeatures"
+        },
+        {
+          "command": "zovoOra.exportSchemaDdl",
+          "when": "config.zovoOra.showProFeatures"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Oracle & SQL Server Client",
+      "properties": {
+        "zovoOra.rowLimit": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 1,
+          "maximum": 100000,
+          "description": "Rows read per query and per Load more. The rest stay on the server until you scroll or click Load more."
+        },
+        "zovoOra.maxLoadedRows": {
+          "type": "number",
+          "default": 100000,
+          "minimum": 1000,
+          "description": "At most this many rows stay loaded in one result. Export the result to get every row: exports stream to the file and have no limit."
+        },
+        "zovoOra.history": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep the last queries per connection on this computer (VS Code global storage). Nothing is sent anywhere."
+        },
+        "zovoOra.historySize": {
+          "type": "number",
+          "default": 200,
+          "minimum": 10,
+          "maximum": 5000,
+          "description": "Queries kept in the history of each connection."
+        },
+        "zovoOra.confirmUnboundedWrites": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ask before UPDATE or DELETE without WHERE, TRUNCATE or DROP runs."
+        },
+        "zovoOra.connectTimeoutSeconds": {
+          "type": "number",
+          "default": 10,
+          "minimum": 2,
+          "maximum": 120,
+          "description": "Give up connecting after this many seconds, with a clear message instead of a hang."
+        },
+        "zovoOra.askForRating": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ask for a Marketplace rating after 2 good sessions at least 4 hours apart. \"Later\" asks once more after 7 days, \"No thanks\" never asks again. Never after an error. Nothing is sent anywhere."
+        },
+        "zovoOra.showSupportLinks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the small Sponsor, PayPal and More free tools links in the results status line. Nothing is sent anywhere."
+        },
+        "zovoOra.showProFeatures": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Zovo Pro tools (execution plan, schema compare, ER diagram, schema DDL export, query library) in menus and the command palette. Set it to false to hide them. Everything free keeps working."
+        },
+        "zovoOra.oracleDbmsOutput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Oracle: turn on DBMS_OUTPUT for each new session and show PUT_LINE output in the Messages tab. \"SET SERVEROUTPUT ON/OFF\" lines in a script also switch it."
+        },
+        "zovoOra.oracleAutoCommit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Oracle: commit each statement when it succeeds. Turn it off to COMMIT or ROLLBACK yourself (uncommitted changes are rolled back when the connection closes)."
+        }
+      }
+    },
+    "walkthroughs": [
+      {
+        "id": "zovoOra.start",
+        "title": "Get started with Oracle SQL & SQL Server",
+        "description": "Connect to SQL Server, Azure SQL or Oracle, run T-SQL and PLSQL, and export results. Free, no sign-in.",
+        "steps": [
+          {
+            "id": "connect",
+            "title": "Add a connection",
+            "description": "Paste a connection string (ADO.NET, JDBC, sqlserver:// or an Oracle Easy Connect string), or fill in the form. SQL login, Windows (NTLM), Azure AD token, tnsnames.ora aliases and wallets. The password goes to VS Code's secret storage.\n[Add Connection](command:zovoOra.addConnection)",
+            "media": {
+              "markdown": "walkthrough/connect.md"
+            },
+            "completionEvents": [
+              "onCommand:zovoOra.addConnection"
+            ]
+          },
+          {
+            "id": "query",
+            "title": "Run a query",
+            "description": "Click New Query on a connection. Ctrl+Enter (Cmd+Enter on macOS) runs the statement or GO batch at the cursor; Ctrl+Alt+Enter runs the whole file. PRINT and DBMS_OUTPUT lines show in Messages. Cancel stops a long query on the server.\n[New Query](command:zovoOra.newQuery)",
+            "media": {
+              "image": "images/screenshot-dark.png",
+              "altText": "A T-SQL batch in the editor with two result sets and PRINT messages next to it, and the explorer with SQL Server and Oracle connections on the left."
+            },
+            "completionEvents": [
+              "onCommand:zovoOra.newQuery",
+              "onCommand:zovoOra.runStatement"
+            ]
+          },
+          {
+            "id": "edit",
+            "title": "Export and stay safe",
+            "description": "Export streams every row to CSV, JSON or SQL INSERT. Read-only connections are enforced by the server. UPDATE or DELETE without WHERE, TRUNCATE and DROP ask first.",
+            "media": {
+              "markdown": "walkthrough/edit.md"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node scripts/build.js --production",
+    "test": "node scripts/build.js --production && ZOVO_SPONSORS_MODULE=$PWD/src/license/sponsors.js node --test \"test/*.test.js\"",
+    "package": "node scripts/build.js --production && npx -y @vscode/vsce package --no-dependencies -o dist/ && node scripts/check-vsix.js dist/zovo-oracle-sqlserver-client-0.1.0.vsix",
+    "test:it": "ZOVO_SQL_IT=1 node --test --test-concurrency=1 test/integration.test.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "~1.90.0",
+    "esbuild": "0.28.2",
+    "tedious": "19.2.2",
+    "oracledb": "26.0.0"
+  },
+  "homepage": "https://github.com/theluckystrike/oracle-sqlserver-client-vscode#readme",
+  "bugs": {
+    "url": "https://github.com/theluckystrike/oracle-sqlserver-client-vscode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theluckystrike/oracle-sqlserver-client-vscode"
+  },
+  "sponsor": {
+    "url": "https://github.com/sponsors/theluckystrike"
+  }
+}
